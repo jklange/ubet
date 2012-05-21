@@ -1,0 +1,55 @@
+1.     Use Case Name:  New user registers
+2.     Use Case Name:  User starts betting with a new user
+
+Modeled after:  Adding friend in Zynga games
+
+Actors:
+
+1.     User1 (initiator of the betting)
+
+2.     User2 (recipient of bet request)
+
+3.     BetPoints system
+
+Precondition:
+
+1.     Both User1 and User2 are registered
+
+Post-conditions:
+
+1.     User1 and User2 have started a bet
+
+2.     User1 and User2 are on each other’s friends list;
+
+3.    User1 is at the New Bet interface
+
+Normal Flow:
+
+1.    User1 access BetPoints app
+
+2.     User1 clicks the Start a New Game button
+
+3.    System provides a Create a Game interface
+
+4.    User1 Clicks User Name button
+
+5.    System provides a User Search interface
+
+6.    User1 enters user name of opponent and then clicks the Search button
+
+7.    System finds user and provides the New Bet interface
+
+Alternate Flow:
+    7a.    System cannot find user so provides a Cannot Find Friend message
+        8a.    User1 acknowledges message
+            9a.      System provides the User Search interface again
+            3.     User can create and propose bet with friends in their list
+            4.     Users can accept, modify, or propose new bet when a bet is proposed
+            5.     For user defined bets, system prompts users to settle bets at appropriate time
+            6.     Users can view bet point totals with each friend
+            7.     Users can adjust bet point amount with friends provided both are in agreement
+            8.     System can provide generic bets that users can use to bet with their friends
+            9.     System bets are automatically settled by the system at appropriate time
+            10.  System sends out notifications to users according to user settings for events like:  new bet proposed, time to settle bet, bet settled, bet point summary
+            11.  User settles bet in collaboration with other user for user defined bets
+            12.  User can view trend of bets and bet history
