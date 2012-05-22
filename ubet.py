@@ -138,33 +138,27 @@ def register():
 
 @app.route('/scoreboards')
 def scoreboards():
+    if 'user_id' not in session:
+        abort(401)
     return render_template('scoreboards.html')
 
 
 @app.route('/global_propositions')
 def global_propositions():
+    if 'user_id' not in session:
+        abort(401)
     return render_template('global_propositions.html')
 
 
 @app.route('/my_propositions')
 def my_propositions():
+    if 'user_id' not in session:
+        abort(401)
     return render_template('my_propositions.html', propositions=query_db('''
         select proposition_id, created, text, state from proposition
         where author_id = ? and global = 0
         order by created desc''', [session['user_id']]))
 
-
-"""
-drop table if exists proposition;
-create table proposition (
-  proposition_id integer primary key autoincrement,
-  created integer,
-  author_id integer not null,
-  global integer not null,
-  text string not null,
-  state integer not null
-);
-"""
 
 @app.route('/add_proposition', methods=['POST'])
 def add_proposition():
@@ -178,6 +172,16 @@ def add_proposition():
         g.db.commit()
         flash('Your proposition was added')
     return redirect(url_for('my_propositions'))
+
+
+@app.route('/proposition/<int:prop_id>')
+def proposition(prop_id):
+    if 'user_id' not in session:
+        abort(401)
+    proposition = query_db('''
+        select proposition_id, created, author_id, global, text, state
+        from proposition where proposition_id = ?''', [prop_id], one=True)
+    return render_template('proposition.html', proposition=proposition)
 
 
 @app.route('/logout')

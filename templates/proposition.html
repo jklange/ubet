@@ -1,0 +1,20 @@
+{% extends "layout.html" %}
+{% block title %}
+  Proposition
+{% endblock %}
+{% block body %}
+  <h2>{{ self.title() }}</h2>
+  {% if g.user %}
+    {% if proposition %}
+      <p>Proposition Id: {{ proposition.proposition_id }}</p>
+      <p>Created: {{ proposition.created|datetimeformat }}</p>
+      <p>Text: {{ proposition.text }}</p>
+      <p>Author Id: {{ proposition.author_id }}</p>
+      <p>State: {{ proposition.state }}</p>
+    {% else %}
+      Invalid proposition.
+    {% endif %}
+  {% else %}
+    Log in.
+  {% endif %}
+{% endblock %}

@@ -95,6 +95,36 @@ div.page div.followstatus {
     font-size: 13px;
 }
 
+div.page ul.messages {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+div.page ul.messages li {
+    margin: 10px 0;
+    padding: 5px;
+    background: #F0FAF9;
+    border: 1px solid #DBF3F1;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    min-height: 48px;
+}
+
+div.page ul.messages p {
+    margin: 0;
+}
+
+div.page ul.messages li img {
+    float: left;
+    padding: 0 10px 0 0;
+}
+
+div.page ul.messages li small {
+    font-size: 0.9em;
+    color: #888;
+}
+
 div.page div.twitbox {
     margin: 10px 0;
     padding: 5px;

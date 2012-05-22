@@ -12,9 +12,12 @@
         --></p><input type=submit value="Add">
       </form>
     </div>
-    <ul>
+    <ul class=messages>
     {% for proposition in propositions %}
-      <li>{{ proposition.text }}
+      <li>
+      <p><a href="{{ url_for('proposition', prop_id=proposition.proposition_id) }}">link</a></p>
+      <p>{{ proposition.created|datetimeformat }}</p>
+      <p>{{ proposition.text }}</p>
     {% else %}
       <li>No propositions so far.
     {% endfor %}
