@@ -15,6 +15,7 @@ create table follower (
 drop table if exists proposition;
 create table proposition (
   proposition_id integer primary key autoincrement,
+  created integer,
   author_id integer not null,
   global integer not null,
   text string not null,
@@ -24,6 +25,7 @@ create table proposition (
 drop table if exists bet;
 create table bet (
   bet_id integer primary key autoincrement,
+  created integer,
   proposition_id integer not null,
   accepted integer not null,
   user_for integer not null,

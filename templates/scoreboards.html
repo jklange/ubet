@@ -1,0 +1,12 @@
+{% extends "layout.html" %}
+{% block title %}
+  Scoreboards
+{% endblock %}
+{% block body %}
+  <h2>{{ self.title() }}</h2>
+  {% if g.user %}
+    You are logged in.
+  {% else %}
+    Log in.
+  {% endif %}
+{% endblock %}

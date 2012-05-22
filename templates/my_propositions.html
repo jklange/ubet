@@ -1,0 +1,25 @@
+{% extends "layout.html" %}
+{% block title %}
+  My Propositions
+{% endblock %}
+{% block body %}
+  <h2>{{ self.title() }}</h2>
+  {% if g.user %}
+    <div class=twitbox>
+      <h3>Add proposition.</h3>
+      <form action="{{ url_for('add_proposition') }}" method=post>
+        <p><input type=text name=text size=60><!--
+        --></p><input type=submit value="Add">
+      </form>
+    </div>
+    <ul>
+    {% for proposition in propositions %}
+      <li>{{ proposition.text }}
+    {% else %}
+      <li>No propositions so far.
+    {% endfor %}
+    </ul>
+  {% else %}
+    Log in.
+  {% endif %}
+{% endblock %}

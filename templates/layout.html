@@ -1,15 +1,15 @@
 <!doctype html>
-<title>{% block title %}Welcome{% endblock %} | MiniTwit</title>
+<title>{% block title %}Welcome{% endblock %} | uBet</title>
 <link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
 <div class=page>
-  <h1>MiniTwit</h1>
+  <h1>uBet</h1>
   <div class=navigation>
   {% if g.user %}
-    <a href="{{ url_for('timeline') }}">my timeline</a> |
-    <a href="{{ url_for('public_timeline') }}">public timeline</a> |
-    <a href="{{ url_for('logout') }}">sign out [{{ g.user.username }}]</a>
+    <a href="{{ url_for('scoreboards') }}">scoreboards</a> |
+    <a href="{{ url_for('my_propositions') }}">my propositions</a> |
+    <a href="{{ url_for('global_propositions') }}">global propositions</a> |
+    <a href="{{ url_for('logout') }}">sign out</a>
   {% else %}
-    <a href="{{ url_for('public_timeline') }}">public timeline</a> |
     <a href="{{ url_for('register') }}">sign up</a> |
     <a href="{{ url_for('login') }}">sign in</a>
   {% endif %}
@@ -27,6 +27,6 @@
   {% block body %}{% endblock %}
   </div>
   <div class=footer>
-    MiniTwit &mdash; A Flask Application
+    uBet &mdash; A Flask Application
   </div>
 </div>

@@ -1,5 +1,5 @@
 body {
-    background: #CAECE9;
+    background: #AABBCC;
     font-family: 'Trebuchet MS', sans-serif;
     font-size: 14px;
 }
@@ -38,26 +38,26 @@ input[type="submit"] {
 
 div.page {
     background: white;
-    border: 1px solid #6ECCC4;
+    border: 1px solid #000;
     width: 700px;
     margin: 30px auto;
 }
 
 div.page h1 {
-    background: #6ECCC4;
+    background: #CCBBAA;
     margin: 0;
     padding: 10px 14px;
     color: white;
     letter-spacing: 1px;
-    text-shadow: 0 0 3px #24776F;
+    text-shadow: 0 0 3px #eee;
     font-weight: normal;
 }
 
 div.page div.navigation {
-    background: #DEE9E8;
+    background: #CCCCCC;
     padding: 4px 10px;
-    border-top: 1px solid #ccc;
-    border-bottom: 1px solid #eee;
+    border-top: 1px solid #000;
+    border-bottom: 1px solid #000;
     color: #888;
     font-size: 12px;
     letter-spacing: 0.5px;
@@ -70,8 +70,8 @@ div.page div.navigation a {
 
 div.page h2 {
     margin: 0 0 15px 0;
-    color: #105751;
-    text-shadow: 0 1px 2px #ccc;
+    color: #AABBCC;
+    text-shadow: 0 1px 2px #eee;
 }
 
 div.page div.body {
@@ -80,8 +80,9 @@ div.page div.body {
 
 div.page div.footer {
     background: #eee;
-    color: #888;
+    color: #000;
     padding: 5px 10px;
+    border-top: 1px solid #000;
     font-size: 12px;
 }
 
@@ -92,36 +93,6 @@ div.page div.followstatus {
     -webkit-border-radius: 2px;
     padding: 3px;
     font-size: 13px;
-}
-
-div.page ul.messages {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-}
-
-div.page ul.messages li {
-    margin: 10px 0;
-    padding: 5px;
-    background: #F0FAF9;
-    border: 1px solid #DBF3F1;
-    -moz-border-radius: 5px;
-    -webkit-border-radius: 5px;
-    min-height: 48px;
-}
-
-div.page ul.messages p {
-    margin: 0;
-}
-
-div.page ul.messages li img {
-    float: left;
-    padding: 0 10px 0 0;
-}
-
-div.page ul.messages li small {
-    font-size: 0.9em;
-    color: #888;
 }
 
 div.page div.twitbox {
@@ -159,7 +130,7 @@ ul.flashes {
 }
 
 ul.flashes li {
-    background: #B9F3ED;
+    background: #eee;
     border: 1px solid #81CEC6;
     -moz-border-radius: 2px;
     -webkit-border-radius: 2px;
