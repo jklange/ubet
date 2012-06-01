@@ -4,25 +4,35 @@
 {% endblock %}
 {% block body %}
   <h2>{{ self.title() }}</h2>
-  {% if g.user %}
-    <div class=twitbox>
-      <h3>Add proposition.</h3>
-      <form action="{{ url_for('add_proposition') }}" method=post>
-        <p><input type=text name=text size=60><!--
-        --></p><input type=submit value="Add">
-      </form>
-    </div>
-    <ul class=messages>
-    {% for proposition in propositions %}
-      <li>
-      <p><a href="{{ url_for('proposition', prop_id=proposition.proposition_id) }}">link</a></p>
-      <p>{{ proposition.created|datetimeformat }}</p>
-      <p>{{ proposition.text }}</p>
+
+  <div class=blue_box>
+    <h3>Add proposition.</h3>
+    <form action="{{ url_for('add_proposition') }}" method=post>
+      <p><input type=text name=text size=60><!--
+      --></p><input type=submit value="Add">
+    </form>
+  </div>
+
+  {% for proposition in propositions %}
+    {% if proposition.true %}
+      <div class=green_box>
+    {% elif proposition.false %}
+      <div class=red_box>
     {% else %}
-      <li>No propositions so far.
-    {% endfor %}
-    </ul>
+      <div class=grey_box>
+    {% endif %}
+        <p>Proposition Id: {{ proposition.proposition_id }}</p>
+        <p>Created: {{ proposition.created|datetimeformat }}</p>
+        <p>Author Id: {{ proposition.author_id }}</p>
+        <p>Text: {{ proposition.text }}</p>
+        <p>State: {{ proposition.state }}</p>
+        <p>State String: {{ proposition.state_string }}</p>
+        <p>Link: <a href="{{ url_for('proposition', prop_id=proposition.proposition_id) }}">here</a></p>
+      </div>
   {% else %}
-    Log in.
-  {% endif %}
+    <div class=grey_box>
+      No propositions so far.
+    </div>
+  {% endfor %}
+
 {% endblock %}

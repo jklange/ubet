@@ -1,0 +1,45 @@
+{% extends "layout.html" %}
+{% block title %}
+  My Bets
+{% endblock %}
+{% block body %}
+  <h2>{{ self.title() }}</h2>
+
+  {% for bet in bets %}
+    {% if bet.won(user) %}
+      <div class=green_box>
+    {% elif bet.lost(user) %}
+      <div class=red_box>
+    {% else %}
+      <div class=grey_box>
+    {% endif %}
+        <p>Bet Id: {{ bet.bet_id }}</p>
+        <p>Created: {{ bet.created|datetimeformat }}</p>
+        <p>Proposition Id: {{ bet.proposition_id }}</p>
+        <p>Proposition Link: <a href="{{ url_for('proposition', prop_id=bet.proposition_id) }}">here</a></p>
+        <p>User Proposed: {{ bet.user_proposed }}</p>
+        <p>User True: {{ bet.user_true }}</p>
+        <p>User False: {{ bet.user_false }}</p>
+        <p>State: {{ bet.state }}</p>
+        <p>State String: {{ bet.state_string(user) }}</p>
+
+        {% if bet.can_accept(user) %}
+          <div class=blue_box>
+            <form action="{{ url_for('accept_bet') }}" method=post>
+            <input type="hidden" name="bet_id" value="{{ bet.bet_id }}">
+            <p>
+            <input type="radio" name="accept" value="true" checked> Accept
+            <input type="radio" name="accept" value="false"> Reject
+            </p>
+            <input type="submit" value="Submit">
+            </form>
+          </div>
+        {% endif %}
+      </div>
+  {% else %}
+    <div class=grey_box>
+      No bets so far.
+    </div>
+  {% endfor %}
+
+{% endblock %}

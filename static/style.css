@@ -125,32 +125,40 @@ div.page ul.messages li small {
     color: #888;
 }
 
-div.page div.twitbox {
+div.page div.blue_box {
     margin: 10px 0;
     padding: 5px;
-    background: #F0FAF9;
-    border: 1px solid #94E2DA;
+    background: #EEEEFF;
+    border: 1px solid #000;
     -moz-border-radius: 5px;
     -webkit-border-radius: 5px;
 }
 
-div.page div.twitbox h3 {
-    margin: 0;
-    font-size: 1em;
-    color: #2C7E76;
+div.page div.grey_box {
+    margin: 10px 0;
+    padding: 5px;
+    background: #EEEEEE;
+    border: 1px solid #000;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
 }
 
-div.page div.twitbox p {
-    margin: 0;
+div.page div.green_box {
+    margin: 10px 0;
+    padding: 5px;
+    background: #EEFFEE;
+    border: 1px solid #000;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
 }
 
-div.page div.twitbox input[type="text"] {
-    width: 585px;
-}
-
-div.page div.twitbox input[type="submit"] {
-    width: 70px;
-    margin-left: 5px;
+div.page div.red_box {
+    margin: 10px 0;
+    padding: 5px;
+    background: #FFEEEE;
+    border: 1px solid #000;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
 }
 
 ul.flashes {

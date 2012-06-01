@@ -21,6 +21,128 @@ app.config.from_object(__name__)
 app.config.from_envvar('MINITWIT_SETTINGS', silent=True)
 
 
+class DBObj(object):
+    def __init__(self, row):
+        for k, v in row.iteritems():
+            setattr(self, k, v)
+
+    @classmethod
+    def load(cls, object_id):
+        row = query_db('''select * from %s where %s_id = ?''' %
+            (cls.table, cls.table), [object_id], one=True)
+        if row:
+            return cls(row)
+        raise Exception('DB Object not found')
+
+    @classmethod
+    def load_list(cls, query='', args=()):
+        return [cls(row) for row in query_db('''select * from %s %s''' %
+            (cls.table, query), args)]
+
+
+class Proposition(DBObj):
+    table = 'proposition'
+
+    STATE_INITIAL = 0
+    STATE_TRUE = 1
+    STATE_FALSE = 2
+
+    @property
+    def settled(self):
+        return self.state != self.STATE_INITIAL
+
+    @property
+    def true(self):
+        return self.state == self.STATE_TRUE
+
+    @property
+    def false(self):
+        return self.state == self.STATE_FALSE
+
+    @property
+    def state_string(self):
+        if self.state == self.STATE_INITIAL:
+            return 'Unsettled'
+        elif self.state == self.STATE_TRUE:
+            return 'True'
+        elif self.state == self.STATE_FALSE:
+            return 'False'
+        return 'Undefined state'
+
+
+class Bet(DBObj):
+    table = 'bet'
+
+    STATE_INITIAL = 0
+    STATE_ACCEPTED = 1
+    STATE_NOT_ACCEPTED = 2
+    STATE_EXPIRED = 3
+
+    @property
+    def proposition(self):
+        if not hasattr(self, '_proposition'):
+            self._proposition = Proposition.load(self.proposition_id)
+        return self._proposition
+
+    def state_string(self, user):
+        if self.state == self.STATE_INITIAL:
+            return "Proposed"
+        elif self.state == self.STATE_EXPIRED:
+            return "Proposal expired"
+        elif self.state == self.STATE_NOT_ACCEPTED:
+            return "Proposal rejected"
+        elif self.won(user):
+            return "Won"
+        elif self.lost(user):
+            return "Lost"
+        elif self.state == self.STATE_ACCEPTED:
+            return "Proposal accepted"
+        return "Undefined state"
+
+    def can_accept(self, user):
+        return user.user_id != self.user_proposed and \
+            user.user_id in [self.user_true, self.user_false] and \
+            self.state == self.STATE_INITIAL
+
+    def won(self, user):
+        if self.state != self.STATE_ACCEPTED:
+            return False
+
+        if self.proposition.state == Proposition.STATE_INITIAL:
+            return False
+
+        if (self.proposition.state == Proposition.STATE_TRUE and
+            self.user_true == user.user_id):
+            return True
+
+        if (self.proposition.state == Proposition.STATE_FALSE and
+            self.user_false == user.user_id):
+            return True
+
+        return False
+
+    def lost(self, user):
+        if self.state != self.STATE_ACCEPTED:
+            return False
+
+        if self.proposition.state == Proposition.STATE_INITIAL:
+            return False
+
+        if (self.proposition.state == Proposition.STATE_TRUE and
+            self.user_false == user.user_id):
+            return True
+
+        if (self.proposition.state == Proposition.STATE_FALSE and
+            self.user_true == user.user_id):
+            return True
+
+        return False
+
+
+class User(DBObj):
+    table = 'user'
+
+
 def connect_db():
     """Returns a new connection to the database."""
     return sqlite3.connect(DATABASE)
@@ -31,6 +153,19 @@ def init_db():
     with closing(connect_db()) as db:
         with app.open_resource('schema.sql') as f:
             db.cursor().executescript(f.read())
+        db.commit()
+
+    with closing(connect_db()) as db:
+        users = [
+            'greg_lange greg@mail.com pass'.split(),
+            'kevin_lange kevin@mail.com pass'.split(),
+            'clint_lange clint@mail.com pass'.split(),
+        ]
+
+        for user in users:
+            db.execute('''insert into user (
+                username, email, pw_hash) values (?, ?, ?)''',
+                [user[0], user[1], generate_password_hash(user[2])])
         db.commit()
 
 
@@ -82,7 +217,7 @@ def teardown_request(exception):
 @app.route('/')
 def main():
     if g.user:
-        return redirect(url_for('scoreboards'))
+        return redirect(url_for('my_propositions'))
     return redirect(url_for('login'))
 
 
@@ -103,7 +238,7 @@ def login():
         else:
             flash('You were logged in')
             session['user_id'] = user['user_id']
-            return redirect(url_for('scoreboards'))
+            return redirect(url_for('my_propositions'))
     return render_template('login.html', error=error)
 
 
@@ -136,28 +271,23 @@ def register():
     return render_template('register.html', error=error)
 
 
-@app.route('/scoreboards')
-def scoreboards():
+@app.route('/my_bets')
+def my_bets():
     if 'user_id' not in session:
         abort(401)
-    return render_template('scoreboards.html')
-
-
-@app.route('/global_propositions')
-def global_propositions():
-    if 'user_id' not in session:
-        abort(401)
-    return render_template('global_propositions.html')
+    user = User.load(session['user_id'])
+    bets = Bet.load_list('''where user_true = ? or user_false = ?
+        order by created desc''', [session['user_id'], session['user_id']])
+    return render_template('my_bets.html', bets=bets, user=user)
 
 
 @app.route('/my_propositions')
 def my_propositions():
     if 'user_id' not in session:
         abort(401)
-    return render_template('my_propositions.html', propositions=query_db('''
-        select proposition_id, created, text, state from proposition
-        where author_id = ? and global = 0
-        order by created desc''', [session['user_id']]))
+    propositions = Proposition.load_list('''where author_id = ?
+        order by created desc''', [session['user_id']])
+    return render_template('my_propositions.html', propositions=propositions)
 
 
 @app.route('/add_proposition', methods=['POST'])
@@ -166,22 +296,113 @@ def add_proposition():
         abort(401)
     if request.form['text']:
         g.db.execute('''insert into proposition
-            (created, author_id, global, text, state)
-            values (?, ?, ?, ?, ?)''',
-            (int(time.time()), session['user_id'], 0, request.form['text'], 0))
+            (created, author_id, text, state)
+            values (?, ?, ?, ?)''',
+            [int(time.time()), session['user_id'], request.form['text'],
+            Proposition.STATE_INITIAL])
         g.db.commit()
-        flash('Your proposition was added')
+        flash('Your proposition was added.')
     return redirect(url_for('my_propositions'))
+
+@app.route('/settle_proposition', methods=['POST'])
+def settle_proposition():
+    if 'user_id' not in session:
+        abort(401)
+
+    proposition = Proposition.load(request.form['proposition_id'])
+
+    if request.form['truth'] == 'true':
+        state = Proposition.STATE_TRUE
+    elif request.form['truth'] == 'false':
+        state = Proposition.STATE_FALSE
+    else:
+        abort(500)
+
+    g.db.execute('''update proposition set state = ?
+        where proposition_id = ?''', [state, proposition.proposition_id])
+    g.db.execute('''update bet set state = ?
+        where proposition_id = ? and state = ?''',
+        [Bet.STATE_EXPIRED, proposition.proposition_id, Bet.STATE_INITIAL])
+    g.db.commit()
+
+    return redirect(url_for('proposition',
+       prop_id=proposition.proposition_id))
 
 
 @app.route('/proposition/<int:prop_id>')
 def proposition(prop_id):
     if 'user_id' not in session:
         abort(401)
-    proposition = query_db('''
-        select proposition_id, created, author_id, global, text, state
-        from proposition where proposition_id = ?''', [prop_id], one=True)
-    return render_template('proposition.html', proposition=proposition)
+
+    user = User.load(session['user_id'])
+
+    proposition = Proposition.load(prop_id)
+
+    users = User.load_list('where user_id != ? order by username',
+        [session['user_id']])
+
+    bets = Bet.load_list('where proposition_id = ? order by created desc',
+        [prop_id])
+
+    return render_template('proposition.html', bets=bets,
+        proposition=proposition, user=user, users=users)
+
+
+@app.route('/add_bet', methods=['POST'])
+def add_bet():
+    if 'user_id' not in session:
+        abort(401)
+
+    proposition = Proposition.load(request.form['proposition_id'])
+
+    if not proposition:
+        abort(500)
+
+    if request.form['truth'] == 'true':
+        user_true = session['user_id']
+        user_false = request.form['user_id']
+    elif request.form['truth'] == 'false':
+        user_true = request.form['user_id']
+        user_false = session['user_id']
+    else:
+        abort(500)
+
+    g.db.execute('''insert into bet
+        (created, proposition_id, user_proposed, user_true, user_false, state)
+        values (?, ?, ?, ?, ?, ?)''',
+        [int(time.time()), proposition.proposition_id, session['user_id'],
+        user_true, user_false, Bet.STATE_INITIAL])
+    g.db.commit()
+
+    return redirect(url_for('proposition',
+       prop_id=proposition.proposition_id))
+
+
+@app.route('/accept_bet', methods=['POST'])
+def accept_bet():
+    if 'user_id' not in session:
+        abort(401)
+
+    bet = Bet.load(request.form['bet_id'])
+
+    if session['user_id'] == bet.user_proposed:
+        abort(500)
+
+    if not session['user_id'] in [bet.user_true, bet.user_false]:
+        abort(500)
+
+    if request.form['accept'] == 'true':
+        state = Bet.STATE_ACCEPTED
+    elif request.form['accept'] == 'false':
+        state = Bet.STATE_NOT_ACCEPTED
+    else:
+        abort(500)
+
+    g.db.execute('''update bet set state = ? where bet_id = ?''',
+        [state, bet.bet_id])
+    g.db.commit()
+
+    return redirect(url_for('my_bets'))
 
 
 @app.route('/logout')

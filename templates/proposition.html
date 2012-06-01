@@ -3,18 +3,79 @@
   Proposition
 {% endblock %}
 {% block body %}
+
   <h2>{{ self.title() }}</h2>
-  {% if g.user %}
-    {% if proposition %}
-      <p>Proposition Id: {{ proposition.proposition_id }}</p>
-      <p>Created: {{ proposition.created|datetimeformat }}</p>
-      <p>Text: {{ proposition.text }}</p>
-      <p>Author Id: {{ proposition.author_id }}</p>
-      <p>State: {{ proposition.state }}</p>
-    {% else %}
-      Invalid proposition.
-    {% endif %}
-  {% else %}
-    Log in.
+  <p>Proposition Id: {{ proposition.proposition_id }}</p>
+  <p>Created: {{ proposition.created|datetimeformat }}</p>
+  <p>Text: {{ proposition.text }}</p>
+  <p>Author Id: {{ proposition.author_id }}</p>
+  <p>State: {{ proposition.state }}</p>
+  <p>State String: {{ proposition.state_string }}</p>
+
+  {% if not proposition.settled %}
+
+    <div class=blue_box>
+    <h3>Settle proposition.</h3>
+    <form action="{{ url_for('settle_proposition') }}" method=post>
+      <input type="hidden" name="proposition_id" value="{{ proposition.proposition_id }}">
+
+      <p>
+      Proposition is:
+      <input type="radio" name="truth" value="true" checked> True
+      <input type="radio" name="truth" value="false"> False
+      </p>
+      <input type=submit value="Settle">
+    </form>
+    </div>
+
+    <div class=blue_box>
+    <h3>Add bet.</h3>
+    <form action="{{ url_for('add_bet') }}" method=post>
+      <input type="hidden" name="proposition_id" value="{{ proposition.proposition_id }}">
+
+      <p>
+      You want to bet:
+      <select name='user_id'>
+      {% for user in users %}
+      <option value="{{ user.user_id }}"> {{ user.username }}
+      {% endfor %}
+      </select>
+      <!-- -->
+      </p>
+      <p>
+      Is this proposition going to be:
+      <input type="radio" name="truth" value="true" checked> True
+      <input type="radio" name="truth" value="false"> False
+      </p>
+      <input type=submit value="Add">
+    </form>
+    </div>
+
   {% endif %}
+
+  <h2>Bets For This Proposition</h2>
+
+  {% for bet in bets %}
+    {% if bet.won(user) %}
+      <div class=green_box>
+    {% elif bet.lost(user) %}
+      <div class=red_box>
+    {% else %}
+      <div class=grey_box>
+    {% endif %}
+        <p>Bet Id: {{ bet.bet_id }}</p>
+        <p>Created: {{ bet.created|datetimeformat }}</p>
+        <p>Proposition Id: {{ bet.proposition_id }}</p>
+        <p>User Proposed: {{ bet.user_proposed }}</p>
+        <p>User True: {{ bet.user_true }}</p>
+        <p>User False: {{ bet.user_false }}</p>
+        <p>State: {{ bet.state }}</p>
+        <p>State String: {{ bet.state_string(user) }}</p>
+      </div>
+  {% else %}
+      <div class=grey_box>
+        No bets so far.
+      </div>
+  {% endfor %}
+
 {% endblock %}

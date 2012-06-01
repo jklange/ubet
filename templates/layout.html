@@ -5,9 +5,8 @@
   <h1>uBet</h1>
   <div class=navigation>
   {% if g.user %}
-    <a href="{{ url_for('scoreboards') }}">scoreboards</a> |
     <a href="{{ url_for('my_propositions') }}">my propositions</a> |
-    <a href="{{ url_for('global_propositions') }}">global propositions</a> |
+    <a href="{{ url_for('my_bets') }}">my bets</a> |
     <a href="{{ url_for('logout') }}">sign out</a>
   {% else %}
     <a href="{{ url_for('register') }}">sign up</a> |
