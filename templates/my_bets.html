@@ -17,6 +17,7 @@
         <p>Created: {{ bet.created|datetimeformat }}</p>
         <p>Proposition Id: {{ bet.proposition_id }}</p>
         <p>Proposition Link: <a href="{{ url_for('proposition', prop_id=bet.proposition_id) }}">here</a></p>
+        <p>Proposition Text: {{ bet.text }}</p>
         <p>User Proposed: {{ bet.user_proposed }}</p>
         <p>User True: {{ bet.user_true }}</p>
         <p>User False: {{ bet.user_false }}</p>

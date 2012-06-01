@@ -84,6 +84,10 @@ class Bet(DBObj):
             self._proposition = Proposition.load(self.proposition_id)
         return self._proposition
 
+    @property
+    def text(self):
+        return self.proposition.text
+
     def state_string(self, user):
         if self.state == self.STATE_INITIAL:
             return "Proposed"
